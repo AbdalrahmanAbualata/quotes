@@ -10,7 +10,7 @@ import com.google.gson.*;
 import java.io.*;
 
 public class App {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         Gson gson = new Gson();
         try {
             Reader reader = new FileReader("app/src/main/resources/data.json");
@@ -20,7 +20,5 @@ public class App {
         } catch (IOException ex) {
             System.out.println("file not found ... " + ex.getMessage());
         }
-
-
     }
 }
