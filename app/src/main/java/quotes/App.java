@@ -3,20 +3,86 @@
  */
 package quotes;
 
-
-
-import com.google.gson.*;
-
 import java.io.*;
-
+import java.net.*;
+import com.google.gson.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
 public class App {
+
+    public static final String FILE = "app/src/main/resources/data.json";
+
     public static void main(String[] args){
+        String urlFtomApi = "http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en";
+        sendGetRequest(urlFtomApi);
+
+    }
+    static String sendGetRequest(String urlFromApi){
+        try {
+            // create connection with url
+            URL url = new URL(urlFromApi);
+            HttpURLConnection connection = setUpConnectionObject(url);
+            // set time outs
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            // check the state of connection if ok create obj quotes and print the result  .
+            if(connection.getResponseCode() == HttpURLConnection.HTTP_OK){ // HTTR_OK the same of 200 .
+                  BufferedReader inputFromApi = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                Reader reader =inputFromApi ;
+                Gson gson = new Gson();
+                QuotesApi apiQuotes = gson.fromJson(reader, QuotesApi.class);
+
+
+                // write in the File the new quote from Api
+                Reader reader2 =new BufferedReader(new FileReader("app/src/main/resources/dataTestFile.json"));
+                Quotes[] recentQuotes2 = gson.fromJson(reader2, Quotes[].class);
+                List<Quotes> listOfQuotes = new ArrayList<Quotes>(Arrays.asList(recentQuotes2));//list of all quotes
+                Quotes toAddToFileQuote =new Quotes(apiQuotes.getQuoteAuthor(),apiQuotes.getQuoteText()); //create a new Quotes obj withe the same value of Quate from Api
+                 listOfQuotes.add(toAddToFileQuote);
+                FileWriter fileWriter = new FileWriter("app/src/main/resources/dataTestFile.json");
+                    BufferedWriter bw = new BufferedWriter(fileWriter);
+                    Gson gson2 = new Gson();
+                    String output = gson2.toJson(listOfQuotes);
+                    bw.write(output);
+                    bw.flush();
+                    bw.close();
+
+                System.out.println(apiQuotes.toString());
+                return apiQuotes.toString();
+            }
+        } catch (MalformedURLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            getQuoteFromFile();
+            return "error";
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            getQuoteFromFile();
+            return "error" ;
+        }
+        return "error";
+    }
+    static HttpURLConnection setUpConnectionObject(URL url) {
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return connection;
+    }
+    public static  void getQuoteFromFile (){
         Gson gson = new Gson();
         try {
-            Reader reader = new FileReader("app/src/main/resources/data.json");
-         Quotes[] recentQuotes = gson.fromJson(reader, Quotes[].class);
+            Reader reader =new BufferedReader(new FileReader(FILE));
+            Quotes[] recentQuotes = gson.fromJson(reader, Quotes[].class);
             int index = (int)(Math.random()*recentQuotes.length);
-            System.out.println(recentQuotes[index]);
+            System.out.println(recentQuotes[1].toString());
         } catch (IOException ex) {
             System.out.println("file not found ... " + ex.getMessage());
         }
