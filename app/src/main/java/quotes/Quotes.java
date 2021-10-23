@@ -4,6 +4,10 @@ package quotes;
 public class Quotes {
     private String author;
     private String text;
+    public Quotes(String author,String text){
+        this.author=author;
+        this.text=text;
+    }
 
     public String getAuthor() {
         return author;
@@ -23,9 +27,8 @@ public class Quotes {
 
     @Override
     public String toString() {
-        String msg ="Today's Quote: " +
-                "Quote: " + text +
-                "author: " + author ;
+        String msg ="Today's Quote:{" +
+                "Quote: " + text + " author: " + author ;
         return msg ;
     }
 }
